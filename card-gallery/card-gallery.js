@@ -24,7 +24,7 @@ async function initialize() {
         );
         columnMetaData = await response.json();
 
-        for (col of columnMetaData.columns)
+        for (const col of columnMetaData.columns)
         {
             if (col.fields && col.fields.widgetOptions)
                 columnWidgetOptions[col.id] = JSON.parse(col.fields.widgetOptions);
