@@ -45,3 +45,7 @@ body {
 .card.current {
     background: #90CAF9;
 }
+
+.thumbnail {
+    max-width: 100%;
+}
