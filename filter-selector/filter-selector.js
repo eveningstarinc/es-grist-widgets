@@ -64,7 +64,7 @@ function refreshFilters() {
 
 function rebuildControls(searchColumns, filterColumns) {
     searchInput.style.display = searchColumns.length ? "" : "none";
-    searchInput.removeEventListener("input");
+    searchInput.removeEventListener("input", commitFilters);
     if (searchColumns.length > 0)
         searchInput.addEventListener("input", commitFilters);
     else
@@ -119,7 +119,7 @@ function commitFilters() {
 }
 
 grist.onRecords(function (records, mappings) {
-    rows = records.map(r => grist.mapColumnNames(r));
+    rows = records;
     searchColumns = mappings.Search || [];
     filterColumns = mappings.Filters || [];
 
