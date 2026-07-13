@@ -1,0 +1,24 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 12px;
+    background: #3f3f3f
+}
+
+.toolbar {
+    display: grid;
+    grid-template-columns: 2fr repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 12px
+}
+
+input,
+select {
+    padding: 8px;
+    border: 1px solid #bbb;
+    border-radius: 6px
+}
+
+#count {
+    margin: 8px 0;
+    font-weight: bold
+}
