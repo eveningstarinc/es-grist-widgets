@@ -19,21 +19,25 @@ grist.ready({
         },
         {
             name: "Subtitle",
-            title: "Subtitle Column"
+            title: "Subtitle Column",
+            optional: true
         },
         {
             name: "Thumbnail",
-            title: "Thumbnail Column"
+            title: "Thumbnail Column",
+            optional: true
         },
         {
             name: "Body",
             title: "Body Columns",
-            allowMultiple: true
+            allowMultiple: true,
+            optional: true
         },
         {
             name: "Badges",
             title: "Badge Columns",
-            allowMultiple: true
+            allowMultiple: true,
+            optional: true
         }
     ]
 });

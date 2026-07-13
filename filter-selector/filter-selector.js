@@ -18,12 +18,14 @@ grist.ready({
         {
             name: "Search",
             title: "Search Columns",
-            allowMultiple: true
+            allowMultiple: true,
+            optional: true
         },
         {
             name: "Filters",
             title: "Filter Columns",
-            allowMultiple: true
+            allowMultiple: true,
+            optional: true
         }
     ]
 });
