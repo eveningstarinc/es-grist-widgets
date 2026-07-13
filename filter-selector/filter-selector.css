@@ -21,11 +21,13 @@ body {
     gap: 8px;
 }
 
-input,
-select {
+input, select {
     padding: 8px;
     border: 1px solid #bbb;
     border-radius: 6px;
+}
+
+#filters select {
     flex: 1 1 180px;
     min-width: 180px;
 }
