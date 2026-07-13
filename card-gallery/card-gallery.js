@@ -12,11 +12,6 @@ const cardsContainer = document.getElementById("cards");
 let attachmentToken = null;
 let attachmentBaseUrl = null;
 
-grist.docApi.getAccessToken({ readOnly: true }).then(info => {
-    attachmentToken = info.token;
-    attachmentBaseUrl = info.baseUrl;
-});
-
 grist.ready({
     requiredAccess: "read table",
     allowSelectBy: true,
@@ -70,6 +65,12 @@ grist.onRecord(function (record) {
     currentRow = record.id;
 });
 
+grist.docApi.getAccessToken({ readOnly: true }).then(info => {
+    attachmentToken = info.token;
+    attachmentBaseUrl = info.baseUrl;
+    render(rows);
+});
+
 function attachmentUrl(id) {
     if (!id || !attachmentToken)
         return null;
@@ -78,6 +79,9 @@ function attachmentUrl(id) {
 }
 
 function renderThumbnail(row) {
+    if (!attachmentToken || !attachmentBaseUrl)
+        return "";
+
     if (!thumbnailColumn)
         return "";
 
