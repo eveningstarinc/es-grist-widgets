@@ -26,6 +26,10 @@ body {
     color: #444444
 }
 
+.subtitle {
+    color: #777;
+}
+
 .meta {
     color: #555;
     font-size: 13px;
