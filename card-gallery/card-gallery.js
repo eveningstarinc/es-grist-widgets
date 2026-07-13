@@ -9,8 +9,33 @@ let badgeColumns = [];
 
 const cardsContainer = document.getElementById("cards");
 
-let attachmentToken = null;
-let attachmentBaseUrl = null;
+let access = {};
+let tableId = null;
+let columnMetaData = null;
+let columnWidgetOptions = {};
+
+async function initialize() {
+    try {
+        access = await grist.docApi.getAccessToken({ readOnly: true });
+        tableId = await grist.getSelectedTableId();
+
+        const response = await fetch(
+            `${access.baseUrl}/tables/${tableId}/columns?hidden=1&auth=${access.token}`
+        );
+        columnMetaData = await response.json();
+
+        for (col of columnMetaData.columns)
+        {
+            if (col.fields && col.fields.widgetOptions)
+                columnWidgetOptions[col.id] = JSON.parse(col.fields.widgetOptions);
+        }
+
+        render();
+    }
+    catch (e) {
+        console.error(e);
+    }
+}
 
 grist.ready({
     requiredAccess: "read table",
@@ -54,7 +79,7 @@ grist.onRecords(function (records, mappings) {
     bodyColumns = mappings.Body ?? [];
     badgeColumns = mappings.Badges ?? [];
 
-    render(rows);
+    render();
 });
 
 grist.onRecord(function (record) {
@@ -65,23 +90,14 @@ grist.onRecord(function (record) {
     currentRow = record.id;
 });
 
-grist.docApi.getAccessToken({ readOnly: true }).then(info => {
-    attachmentToken = info.token;
-    attachmentBaseUrl = info.baseUrl;
-    render(rows);
-});
-
 function attachmentUrl(id) {
-    if (!id || !attachmentToken)
+    if (!id || !access.token || !access.baseUrl)
         return null;
 
-    return `${attachmentBaseUrl}/attachments/${id}/download?auth=${attachmentToken}`;
+    return `${access.baseUrl}/attachments/${id}/download?auth=${access.token}`;
 }
 
 function renderThumbnail(row) {
-    if (!attachmentToken || !attachmentBaseUrl)
-        return "";
-
     if (!thumbnailColumn)
         return "";
 
@@ -92,29 +108,57 @@ function renderThumbnail(row) {
 
     return `
         <img class="thumbnail"
-             src="${attachmentUrl(attachmentId)}"
-             loading="lazy">
+            src="${attachmentUrl(attachmentId)}"
+            loading="lazy">
     `;
 }
 
-function render(rows) {
+function renderBadge(column, value) {
+    if (Array.isArray(value)) {
+        return value.map(v => renderBadge(column, v)).join(" ");
+    }
+
+    const opts = columnWidgetOptions[column];
+    const style = opts?.choiceOptions?.[value];
+
+    const bg = style?.fillColor;
+    const fg = style?.textColor;
+
+    const css = [
+        bg ? `background:${bg};` : "",
+        fg ? `color:${fg};` : (bg ? `color: contrast-color(${bg});` : "")
+    ].filter(Boolean).join(";");
+
+    return `<span class="badge" style="${css}">${value}</span>`;
+}
+
+function renderBodyField(col, value) {
+    let html = `<b>${col.replaceAll("_", " ")}:</b> `;
+
+    const opts = columnWidgetOptions[col];
+    if (opts?.choiceOptions)
+        html += renderBadge(col, value);
+    else
+        html += value;
+
+    return html;
+}
+
+function render() {
     cardsContainer.innerHTML = "";
     rows.forEach(function (r) {
-        const attachmentId = thumbnailColumn
-            ? r[thumbnailColumn]?.[0]
-            : null;
         const thumbnail = renderThumbnail(r);
         const title = titleColumn ? (r[titleColumn] ?? "") : "";
         const subtitle = subtitleColumn ? (r[subtitleColumn] ?? "") : "";
 
         const body = bodyColumns
             .filter(col => r[col] != null && r[col] !== "")
-            .map(col => `<b>${col.replaceAll("_", " ")}:</b> ${r[col]}`)
+            .map(col => renderBodyField(col, r[col]))
             .join("<br>");
 
         const badges = badgeColumns
             .filter(col => r[col])
-            .map(col => `<span class="badge">${r[col]}</span>`)
+            .map(col => renderBadge(col, r[col]))
             .join("");
 
         const c = document.createElement("div");
@@ -123,9 +167,9 @@ function render(rows) {
         if (currentRow == r.id)
             c.classList.add('current');
         c.innerHTML = `
-        ${thumbnail}
-
 <div class="title">${title}</div>
+
+${thumbnail}
 
 ${subtitle ? `<div class="subtitle">${subtitle}</div>` : ""}
 
@@ -137,6 +181,8 @@ ${badges ? `<div class="badges">${badges}</div>` : ""}
         c.onclick = () => {
             if (r.id) { grist.setCursorPos({ rowId: r.id }); }
         };
-        cards.appendChild(c);
+        cardsContainer.appendChild(c);
     });
 }
+
+initialize();
