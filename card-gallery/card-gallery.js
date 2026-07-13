@@ -9,6 +9,14 @@ let badgeColumns = [];
 
 const cardsContainer = document.getElementById("cards");
 
+let attachmentToken = null;
+let attachmentBaseUrl = null;
+
+grist.docApi.getAccessToken({ readOnly: true }).then(info => {
+    attachmentToken = info.token;
+    attachmentBaseUrl = info.baseUrl;
+});
+
 grist.ready({
     requiredAccess: "read table",
     allowSelectBy: true,
@@ -62,16 +70,42 @@ grist.onRecord(function (record) {
     currentRow = record.id;
 });
 
+function attachmentUrl(id) {
+    if (!id || !attachmentToken)
+        return null;
+
+    return `${attachmentBaseUrl}/attachments/${id}/download?auth=${attachmentToken}`;
+}
+
+function renderThumbnail(row) {
+    if (!thumbnailColumn)
+        return "";
+
+    const attachmentId = row[thumbnailColumn]?.[0];
+
+    if (!attachmentId)
+        return "";
+
+    return `
+        <img class="thumbnail"
+             src="${attachmentUrl(attachmentId)}"
+             loading="lazy">
+    `;
+}
+
 function render(rows) {
     cardsContainer.innerHTML = "";
     rows.forEach(function (r) {
-        const thumbnail = "";
+        const attachmentId = thumbnailColumn
+            ? r[thumbnailColumn]?.[0]
+            : null;
+        const thumbnail = renderThumbnail(r);
         const title = titleColumn ? (r[titleColumn] ?? "") : "";
         const subtitle = subtitleColumn ? (r[subtitleColumn] ?? "") : "";
 
         const body = bodyColumns
             .filter(col => r[col] != null && r[col] !== "")
-            .map(col => `<b>${col}:</b> ${r[col]}`)
+            .map(col => `<b>${col.replaceAll("_", " ")}:</b> ${r[col]}`)
             .join("<br>");
 
         const badges = badgeColumns
