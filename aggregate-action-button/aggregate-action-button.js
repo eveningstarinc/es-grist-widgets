@@ -46,13 +46,11 @@ function render() {
         return;
     }
 
-    const buttonEnabled = btn.actions.length > 0 && !running;
-
     app.innerHTML = `
         <div class="container">
             ${inputs.map((btn, i) => `
                 <button class="button"
-                        ${!buttonEnabled ? "disabled" : ""}
+                        ${(!btn.actions || btn.actions.length == 0) && running ? "disabled" : ""}
                         data-index="${i}">
                     ${btn.button}
                 </button>
@@ -70,6 +68,8 @@ function render() {
 
     app.querySelectorAll(".button").forEach(btn => {
         const index = Number(btn.dataset.index);
+
+        const buttonEnabled = inputs[index].actions && inputs[index].actions.length > 0 && !running;
 
         if (buttonEnabled)
             btn.onclick = () => applyActions(inputs[index].actions);
@@ -130,7 +130,7 @@ function onRecords(records, mappings) {
                         `Missing keys: ${missing}`);
                 }
 
-                if (btn.actions.length > 0) {
+                if (btn.actions && btn.actions.length > 0) {
                     allActions.push(...btn.actions);
                     hasActionCount++;
                 }
