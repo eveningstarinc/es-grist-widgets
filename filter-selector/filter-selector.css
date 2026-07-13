@@ -5,10 +5,15 @@ body {
 }
 
 .toolbar {
-    display: grid;
-    grid-template-columns: 2fr repeat(5, 1fr);
+    display: flex;
     gap: 8px;
-    margin-bottom: 12px
+    align-items: flex-start;
+}
+
+#filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 input,

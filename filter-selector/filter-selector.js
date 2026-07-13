@@ -64,7 +64,11 @@ function refreshFilters() {
 
 function rebuildControls(searchColumns, filterColumns) {
     searchInput.style.display = searchColumns.length ? "" : "none";
-    if (!searchColumns.length) searchInput.value = "";
+    searchInput.removeEventListener("input");
+    if (searchColumns.length > 0)
+        searchInput.addEventListener("input", commitFilters);
+    else
+        searchInput.value = "";
 
     filtersContainer.innerHTML = "";
     filterControls = {};
@@ -118,6 +122,12 @@ grist.onRecords(function (records, mappings) {
     rows = records.map(r => grist.mapColumnNames(r));
     searchColumns = mappings.Search || [];
     filterColumns = mappings.Filters || [];
+
+    console.log(mappings);
+    console.log(searchColumns);
+    console.log(filterColumns);
+    console.log(rows[0]);
+
     if (!arraysEqual(searchColumns, lastSearchColumns) ||
         !arraysEqual(filterColumns, lastFilterColumns)) {
 
