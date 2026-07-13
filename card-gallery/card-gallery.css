@@ -1,0 +1,46 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 12px;
+    background: #3f3f3f
+}
+
+#cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 8px;
+}
+
+.card {
+    background: #cccccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 8px 0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .15);
+    cursor: pointer
+}
+
+.title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #444444
+}
+
+.meta {
+    color: #555;
+    font-size: 13px;
+    line-height: 1.5
+}
+
+.badge {
+    display: inline-block;
+    background: #2d7ff9;
+    color: #fff;
+    border-radius: 12px;
+    padding: 3px 8px;
+    margin-top: 6px;
+    font-size: 12px
+}
+
+.card.current {
+    background: #90CAF9;
+}

@@ -27,11 +27,6 @@ input, select {
     border-radius: 6px;
 }
 
-#filters select {
-    flex: 1 1 180px;
-    min-width: 180px;
-}
-
 #count {
     margin: 8px 0;
     font-weight: bold
